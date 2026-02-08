@@ -11,6 +11,7 @@ import com.wordynerd.wordynerd.entity.User;
 import com.wordynerd.wordynerd.exception.InvalidCredentialsException;
 import com.wordynerd.wordynerd.repository.UserRepository;
 
+import com.wordynerd.wordynerd.security.JwtUtil;
 import com.wordynerd.wordynerd.dto.SignupRequest;
 import com.wordynerd.wordynerd.dto.SignupResponse;
 
@@ -20,9 +21,11 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, JwtUtil jwtUtil){
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -45,10 +48,13 @@ public class UserService {
             throw new InvalidCredentialsException();
         }
 
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());        
+
         return new LoginResponse(
             user.getId(),
             user.getEmail(),
             user.getRole(),
+            token,
             "Login successful"
         );
     }

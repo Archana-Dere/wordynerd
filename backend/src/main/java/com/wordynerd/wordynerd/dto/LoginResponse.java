@@ -5,6 +5,7 @@ public class LoginResponse {
     private Long userId;
     private String email;
     private String role;
+    private String token;
     private String message;
 
     // Default constructor
@@ -12,10 +13,11 @@ public class LoginResponse {
     }
 
     // All-args constructor (used in service)
-    public LoginResponse(Long userId, String email, String role, String message) {
+    public LoginResponse(Long userId, String email, String role, String token, String message) {
         this.userId = userId;
         this.email = email;
         this.role = role;
+        this.token = token;
         this.message = message;
     }
 
@@ -38,6 +40,10 @@ public class LoginResponse {
 
     public String getRole() {
         return role;
+    }
+
+    public String getToken(){
+        return token;
     }
 
     public void setRole(String role) {
