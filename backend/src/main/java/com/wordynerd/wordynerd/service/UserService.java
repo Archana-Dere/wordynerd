@@ -10,10 +10,13 @@ import com.wordynerd.wordynerd.dto.LoginResponse;
 import com.wordynerd.wordynerd.entity.User;
 import com.wordynerd.wordynerd.exception.InvalidCredentialsException;
 import com.wordynerd.wordynerd.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import com.wordynerd.wordynerd.security.JwtUtil;
 import com.wordynerd.wordynerd.dto.SignupRequest;
 import com.wordynerd.wordynerd.dto.SignupResponse;
+import com.wordynerd.wordynerd.dto.UserResponse;
 
 
 @Service
@@ -80,6 +83,22 @@ public class UserService {
             savedUser.getEmail(),
             savedUser.getRole(),
             "Signup successfull"
+        );
+    }
+
+    public UserResponse getLoggedInUser(){
+        Authentication authentication = 
+            SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(()-> new RuntimeException("User not found"));
+
+        return new UserResponse(
+            user.getId(),
+            user.getEmail(),
+            user.getRole()
         );
     }
 }
