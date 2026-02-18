@@ -13,16 +13,18 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    // Must be at least 256 bits (32+ chars)
     private static final String SECRET =
             "wordynerd_wordynerd_wordynerd_secret_123456";
 
-    private static final long EXPIRATION_TIME =
-            1000 * 60 * 60 * 24; // 24 hours
+    private static final long ACCESS_EXPIRATION =
+            1000 * 60 * 15; // 15 minutes
+
+    private static final long REFRESH_EXPIRATION =
+            1000L * 60 * 60 * 24 * 7; // 7 days
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(Long userId, String email, String role) {
+    public String generateAccessToken(Long userId, String email, String role) {
 
         return Jwts.builder()
                 .setSubject(email)
@@ -30,7 +32,19 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                        new Date(System.currentTimeMillis() + ACCESS_EXPIRATION)
+                )
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(Long userId) {
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + REFRESH_EXPIRATION)
                 )
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -45,8 +59,8 @@ public class JwtUtil {
     }
 
     public String extractEmail(String token) {
-        return extractAllClaims(token).getSubject();
-    }
+    return extractAllClaims(token).getSubject();
+        }
 
     public boolean isTokenExpired(String token) {
         return extractAllClaims(token)

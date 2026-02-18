@@ -5,7 +5,8 @@ public class LoginResponse {
     private Long userId;
     private String email;
     private String role;
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private String message;
 
     // Default constructor
@@ -13,15 +14,23 @@ public class LoginResponse {
     }
 
     // All-args constructor (used in service)
-    public LoginResponse(Long userId, String email, String role, String token, String message) {
+    public LoginResponse(Long userId,
+                         String email,
+                         String role,
+                         String accessToken,
+                         String refreshToken,
+                         String message) {
+
         this.userId = userId;
         this.email = email;
         this.role = role;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.message = message;
     }
 
     // Getters and Setters
+
     public Long getUserId() {
         return userId;
     }
@@ -42,12 +51,28 @@ public class LoginResponse {
         return role;
     }
 
-    public String getToken(){
-        return token;
-    }
-
     public void setRole(String role) {
         this.role = role;
+    }
+
+    // ✅ Correct getter name
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    // ✅ Proper setter
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    // ✅ Correct getter
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    // ✅ Correct setter (must accept parameter)
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getMessage() {

@@ -12,6 +12,8 @@ import com.wordynerd.wordynerd.exception.InvalidCredentialsException;
 import com.wordynerd.wordynerd.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
+import com.wordynerd.wordynerd.entity.RefreshToken;
+
 
 import com.wordynerd.wordynerd.security.JwtUtil;
 import com.wordynerd.wordynerd.dto.SignupRequest;
@@ -25,10 +27,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepository userRepository, JwtUtil jwtUtil){
+    public UserService(UserRepository userRepository, JwtUtil jwtUtil, RefreshTokenService refreshTokenService){
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -51,13 +55,24 @@ public class UserService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());        
+        // String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());  
+        
+        String accessToken = jwtUtil.generateAccessToken(
+        user.getId(),
+        user.getEmail(),
+        user.getRole()
+        );
+
+        //Generate Refresh Token (Saved in DB)
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(user.getId());
 
         return new LoginResponse(
             user.getId(),
             user.getEmail(),
             user.getRole(),
-            token,
+            accessToken,
+            refreshToken.getToken(),
             "Login successful"
         );
     }
