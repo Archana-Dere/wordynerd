@@ -5,6 +5,9 @@ import java.util.Optional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 import com.wordynerd.wordynerd.dto.LoginRequest;
 import com.wordynerd.wordynerd.dto.LoginResponse;
 import com.wordynerd.wordynerd.entity.User;
@@ -36,7 +39,10 @@ public class UserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    @Transactional
     public LoginResponse login(LoginRequest request){
+
+        // System.out.println("debug: LOGIN METHOD CALLED for email: " + request.getEmail());
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if(optionalUser.isEmpty()){
@@ -50,6 +56,8 @@ public class UserService {
         // }
 
         boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        // System.out.println("debug: Password matches: " + passwordMatches);
 
         if(!passwordMatches){
             throw new InvalidCredentialsException();

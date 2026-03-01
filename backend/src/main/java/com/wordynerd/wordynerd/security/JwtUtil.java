@@ -69,6 +69,15 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
+
+        // System.out.println("debug: Validating Token: " + token);
+
+         try {
+            extractAllClaims(token);
+        } catch (Exception e) {
+        //     System.out.println("debug: Token validation failed: " + e.getMessage());
+            return false;
+        }       
         return !isTokenExpired(token);
     }
 }
