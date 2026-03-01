@@ -10,18 +10,14 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String word;
-
-    @Column(nullable = false, length = 1000)
     private String meaning;
-
     private String exampleSentence;
-
     private String difficulty;
 
-    public Word() {
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     // Getters and Setters
 
@@ -59,5 +55,13 @@ public class Word {
 
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

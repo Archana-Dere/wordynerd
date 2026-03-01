@@ -2,6 +2,11 @@ package com.wordynerd.wordynerd.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -18,6 +23,10 @@ public class User {
 
     @Column(nullable = false)
     private String role = "USER";
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Word> words;
 
     public User() {
     }
@@ -52,5 +61,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<Word> getWords() {
+        return words;
+    }
+
+    public void setWords(List<Word> words){
+        this.words = words;
     }
 }
