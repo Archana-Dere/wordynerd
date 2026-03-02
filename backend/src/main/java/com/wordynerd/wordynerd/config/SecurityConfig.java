@@ -32,6 +32,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/signup").permitAll()
+                // .requestMatchers("/words/**").authenticated() // ✅ Only authenticated users can access /words endpoints
                 .anyRequest().authenticated()
             )
 

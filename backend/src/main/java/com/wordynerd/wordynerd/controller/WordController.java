@@ -26,15 +26,15 @@ import com.wordynerd.wordynerd.service.WordService;
             return wordService.getAllWords();
         }
 
-        @GetMapping("/{id}")
-        public Word getWordById(@PathVariable Long id) {
-            return wordService.getWordById(id);
+        @PutMapping("/{id}")
+        public Word updateWord(@PathVariable Long id,
+                            @RequestBody Word word) {
+            return wordService.updateWord(id, word);
         }
 
-        @DeleteMapping("{id}")
-        public String deleteWord(@PathVariable Long id) {
+        @DeleteMapping("/{id}")
+        public void deleteWord(@PathVariable Long id) {
             wordService.deleteWord(id);
-            return "Word deleted successfully.";
         }
     }
     
