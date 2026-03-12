@@ -15,6 +15,10 @@ public class Word {
     private String exampleSentence;
     private String difficulty;
 
+    private String partOfSpeech;
+    private String synonym;
+    private String antonym;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -47,6 +51,30 @@ public class Word {
 
     public void setExampleSentence(String exampleSentence) {
         this.exampleSentence = exampleSentence;
+    }
+
+    public String getPartOfSpeech() {
+        return partOfSpeech;
+    }
+
+    public void setPartOfSpeech(String partOfSpeech) {
+        this.partOfSpeech = partOfSpeech;
+    }
+
+    public String getSynonym() {
+        return synonym;
+    }
+
+    public void setSynonym(String synonym) {
+        this.synonym = synonym;
+    }
+
+    public String getAntonym() {
+        return antonym;
+    }
+
+    public void setAntonym(String antonym) {
+        this.antonym = antonym;
     }
 
     public String getDifficulty() {
