@@ -1,5 +1,7 @@
 package com.wordynerd.wordynerd.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,5 +29,12 @@ public class AuthController {
     @PostMapping("/signup")
     public SignupResponse signup(@RequestBody SignupRequest request) {
         return userService.register(request);
+    }
+
+    @PostMapping({"/logout", "/logout/"})
+    public ResponseEntity<String> logout(Authentication authentication){
+        String email = authentication.getName();
+        userService.logout(email);
+        return ResponseEntity.ok("Logout successful");
     }
 }

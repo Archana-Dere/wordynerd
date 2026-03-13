@@ -30,10 +30,10 @@ public class SecurityConfig {
 
             // 2️. Authorization rules
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
-                .requestMatchers("/signup").permitAll()
-                // .requestMatchers("/words/**").authenticated() // ✅ Only authenticated users can access /words endpoints
-                .anyRequest().authenticated()
+            .requestMatchers("/login").permitAll()
+            .requestMatchers("/signup").permitAll()
+            .requestMatchers("/logout").authenticated()
+            .anyRequest().authenticated()
             )
 
             // 3️. Add JWT filter before default authentication filter

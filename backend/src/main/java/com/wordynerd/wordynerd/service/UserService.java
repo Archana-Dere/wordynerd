@@ -124,4 +124,11 @@ public class UserService {
             user.getRole()
         );
     }
+
+    @Transactional
+    public void logout(String email){
+        User user = userRepository.findByEmail(email)
+        .orElseThrow(()-> new RuntimeException("User not found"));
+        refreshTokenService.deleteByUserId(user.getId());
+    }
 }

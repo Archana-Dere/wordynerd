@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wordynerd.wordynerd.entity.RefreshToken;
 import com.wordynerd.wordynerd.repository.RefreshTokenRepository;
@@ -43,5 +44,10 @@ public class RefreshTokenService {
         }
 
         return token;
+    }
+
+    @Transactional
+    public void deleteByUserId(Long userId) {
+        refreshTokenRepository.deleteByUserId(userId);
     }
 }
