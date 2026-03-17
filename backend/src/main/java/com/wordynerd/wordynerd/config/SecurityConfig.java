@@ -34,6 +34,7 @@ public class SecurityConfig {
             .requestMatchers("/signup").permitAll()
             .requestMatchers("/logout").authenticated()
             .anyRequest().authenticated()
+            // .anyRequest().permitAll()
             )
 
             // 3️. Add JWT filter before default authentication filter

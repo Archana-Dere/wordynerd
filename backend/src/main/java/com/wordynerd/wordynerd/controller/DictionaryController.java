@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wordynerd.wordynerd.service.DictionaryService;
+import com.wordynerd.wordynerd.dto.DictionaryResponse;
 
 
 @RestController
@@ -18,11 +19,17 @@ public class DictionaryController {
         this.dictionaryService = dictionaryService;
     }
 
-    @GetMapping("/search/{word}")
-    public String searchWord(@PathVariable String word){
+    // @GetMapping("/search/{word}")
+    // public String searchWord(@PathVariable String word){
 
+    //     System.out.println("debug: DICTIONARY CONTROLLER HIT");
+    //     return dictionaryService.searchWord(word);
+    // }
+
+    @GetMapping("/search/{word}")
+    public DictionaryResponse searchWord(@PathVariable String word) {
         System.out.println("debug: DICTIONARY CONTROLLER HIT");
         return dictionaryService.searchWord(word);
-    }
+}
 
 }
