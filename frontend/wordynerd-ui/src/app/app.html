@@ -1,0 +1,172 @@
+<main class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="WordyNerd home">
+      <span class="brand-mark" aria-hidden="true">W</span>
+      <span>wordynerd</span>
+    </a>
+    <div class="connection-status" [class.is-online]="apiStatus() === 'online'">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>
+        @switch (apiStatus()) {
+          @case ('online') { API connected }
+          @case ('offline') { API unavailable }
+          @default { Checking API }
+        }
+      </span>
+    </div>
+  </header>
+
+  <section class="content-grid">
+    <aside class="intro-panel">
+      <div class="intro-copy">
+        <p class="eyebrow"><span class="sparkle" aria-hidden="true">✳</span> A little more wonder in every word</p>
+        <h1>Make words<br />work <em>for you.</em></h1>
+        <p class="intro-description">
+          Your personal corner of the language universe. Discover new words, keep the good ones, and make them yours.
+        </p>
+      </div>
+
+      <div class="word-card" aria-label="Word of the day: petrichor, the pleasant smell after rain">
+        <div class="word-card-top">
+          <span class="word-label">A WORD TO KEEP</span>
+          <span class="word-flower" aria-hidden="true">✳</span>
+        </div>
+        <p class="featured-word">petrichor<span>.</span></p>
+        <p class="pronunciation">/ˈpe-tri-ˌkȯr/ <span>noun</span></p>
+        <p class="definition">The lovely, earthy scent after the first rain.</p>
+        <div class="word-card-footer"><span>01</span><span>YOUR NEXT FAVORITE WORD</span></div>
+      </div>
+
+    </aside>
+
+    <section class="auth-panel" aria-label="Account access">
+      @if (profile(); as currentProfile) {
+        <div class="welcome-card">
+          <span class="success-icon" aria-hidden="true">✓</span>
+          <p class="eyebrow">YOU'RE SIGNED IN</p>
+          <h2>Welcome to your<br /><em>word world.</em></h2>
+          <p class="welcome-copy">Your connection is live and your account is ready.</p>
+          <div class="profile-row">
+            <span class="profile-avatar" aria-hidden="true">{{ currentProfile.email.slice(0, 1).toUpperCase() }}</span>
+            <span class="profile-details"><strong>{{ currentProfile.email }}</strong><small>{{ currentProfile.role }}</small></span>
+            <span class="profile-check" aria-label="Verified">✓</span>
+          </div>
+          <button class="secondary-button signout-button" type="button" (click)="signOut()">Sign out</button>
+        </div>
+      } @else {
+        <div class="auth-card">
+          <div class="card-heading">
+            <p class="eyebrow">{{ mode() === 'login' ? 'YOUR WORDS ARE WAITING' : 'YOUR NEXT CHAPTER STARTS HERE' }}</p>
+            <h2>{{ mode() === 'login' ? 'Welcome back' : 'Join the word club' }}<span>.</span></h2>
+            <p class="card-subtitle">
+              {{ mode() === 'login' ? 'Sign in to pick up where your curiosity left off.' : 'Create an account and start collecting words you love.' }}
+            </p>
+          </div>
+
+          <div class="mode-switch" role="group" aria-label="Choose account action">
+            <button type="button" [class.active]="mode() === 'login'" [attr.aria-pressed]="mode() === 'login'" (click)="setMode('login')">Sign in</button>
+            <button type="button" [class.active]="mode() === 'signup'" [attr.aria-pressed]="mode() === 'signup'" (click)="setMode('signup')">Create account</button>
+          </div>
+
+          @if (successMessage()) {
+            <div class="message success-message" role="status">{{ successMessage() }}</div>
+          }
+          @if (formError()) {
+            <div class="message error-message" role="alert">{{ formError() }}</div>
+          }
+
+          <form #authForm="ngForm" (ngSubmit)="submit(authForm)" novalidate>
+            <label class="field-label" for="email">Email address</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">✉</span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                [(ngModel)]="email"
+                required
+                email
+                #emailInput="ngModel"
+                [class.invalid]="emailInput.invalid && emailInput.touched"
+              />
+            </div>
+            @if (emailInput.invalid && emailInput.touched) {
+              <small class="field-hint">Enter a valid email address.</small>
+            }
+
+            <label class="field-label password-label" for="password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon lock-icon" aria-hidden="true">⌑</span>
+              <input
+                id="password"
+                name="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                placeholder="At least 8 characters"
+                [autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+                [(ngModel)]="password"
+                required
+                minlength="8"
+                #passwordInput="ngModel"
+                [class.invalid]="passwordInput.invalid && passwordInput.touched"
+              />
+              <button class="show-password" type="button" (click)="togglePasswordVisibility()" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                {{ showPassword() ? 'Hide' : 'Show' }}
+              </button>
+            </div>
+            @if (passwordInput.invalid && passwordInput.touched) {
+              <small class="field-hint">Use at least 8 characters.</small>
+            }
+
+            @if (mode() === 'signup') {
+              <label class="field-label password-label" for="confirmPassword">Confirm password</label>
+              <div class="input-wrap">
+                <span class="input-icon lock-icon" aria-hidden="true">⌑</span>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Enter your password again"
+                  autocomplete="new-password"
+                  [(ngModel)]="confirmPassword"
+                  required
+                  #confirmPasswordInput="ngModel"
+                  [class.invalid]="confirmPasswordInput.invalid && confirmPasswordInput.touched"
+                />
+              </div>
+              @if (confirmPasswordInput.touched && password !== confirmPassword) {
+                <small class="field-hint">Your passwords need to match.</small>
+              }
+            }
+
+            @if (mode() === 'login') {
+              <div class="form-options">
+                <span class="secure-note"><span aria-hidden="true">✦</span> Secure sign in</span>
+              </div>
+            }
+
+            <button class="primary-button" type="submit" [disabled]="isSubmitting() || apiStatus() === 'checking'">
+              @if (isSubmitting()) {
+                <span class="spinner" aria-hidden="true"></span>
+                {{ mode() === 'login' ? 'Signing you in…' : 'Creating your account…' }}
+              } @else {
+                {{ mode() === 'login' ? 'Sign in to WordyNerd' : 'Create my account' }}
+                <span aria-hidden="true">↗</span>
+              }
+            </button>
+          </form>
+
+          <p class="switch-copy">
+            {{ mode() === 'login' ? 'New around here?' : 'Already have an account?' }}
+            <button type="button" (click)="setMode(mode() === 'login' ? 'signup' : 'login')">
+              {{ mode() === 'login' ? 'Create an account' : 'Sign in instead' }}
+            </button>
+          </p>
+          <p class="privacy-copy">By continuing, you agree to keep the good words going.</p>
+        </div>
+      }
+      <p class="copyright">© 2026 WordyNerd <span>·</span> Made for the love of language</p>
+    </section>
+  </section>
+</main>

@@ -2,7 +2,6 @@ package com.wordynerd.wordynerd.security;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -10,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.wordynerd.wordynerd.repository.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -20,8 +21,13 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserRepository userRepository) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -29,57 +35,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
-            
-        System.out.println("debug: JWT FILTER STARTED");
 
         final String authHeader = request.getHeader("Authorization");
-
-        System.out.println("debug: Authorization Header: " + authHeader);
-        String email = null;
-        String token = null;
-
-        //Check if header exists and starts with Bearer
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            System.out.println("debug: Extracted Token: " + token);
-
-            email = jwtUtil.extractEmail(token);
-            System.out.println("debug: Extracted Email: " + email);
-        }
-
-        //If email exists and user not already authenticated
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            if (jwtUtil.validateToken(token)) {
-
+        if (authHeader != null
+                && authHeader.startsWith("Bearer ")
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+            String token = authHeader.substring(7);
+            if (!token.isBlank() && jwtUtil.validateToken(token)) {
                 Claims claims = jwtUtil.extractAllClaims(token);
+                String email = claims.getSubject();
                 String role = claims.get("role", String.class);
+                Integer tokenVersion = claims.get("tokenVersion", Integer.class);
+                boolean tokenIsCurrent = email != null
+                        && tokenVersion != null
+                        && userRepository.findByEmail(email)
+                                .map(user -> user.getTokenVersion() == tokenVersion)
+                                .orElse(false);
 
-                UserDetails userDetails = User
-                        .withUsername(email)
-                        .password("") // not needed here
-                        .authorities(role)
-                        .build();
+                if (role != null && tokenIsCurrent) {
+                    UserDetails userDetails = User
+                            .withUsername(email)
+                            .password("")
+                            .authorities(role)
+                            .build();
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
 
-                //Set authentication in Security Context
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         }
 
-        //Continue filter chain
         filterChain.doFilter(request, response);
-
-        System.out.println("debug: JWT FILTER ENDED");
     }
 }

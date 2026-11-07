@@ -25,6 +25,9 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int tokenVersion;
+
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Word> words;
@@ -62,6 +65,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public int getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(int tokenVersion) {
+        this.tokenVersion = tokenVersion;
     }
 
     public List<Word> getWords() {

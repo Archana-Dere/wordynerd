@@ -3,13 +3,14 @@ package com.wordynerd.wordynerd.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.wordynerd.wordynerd.security.JwtAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 public class SecurityConfig {
@@ -27,11 +28,18 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, exception) ->
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                )
+            )
 
             // 2️. Authorization rules
             .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/health-check").permitAll()
             .requestMatchers("/login").permitAll()
             .requestMatchers("/signup").permitAll()
+            .requestMatchers("/refresh").permitAll()
             .requestMatchers("/logout").authenticated()
             .anyRequest().authenticated()
             // .anyRequest().permitAll()

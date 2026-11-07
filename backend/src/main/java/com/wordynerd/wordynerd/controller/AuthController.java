@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wordynerd.wordynerd.dto.LoginRequest;
 import com.wordynerd.wordynerd.dto.LoginResponse;
+import com.wordynerd.wordynerd.dto.RefreshRequest;
 import com.wordynerd.wordynerd.dto.SignupRequest;
 import com.wordynerd.wordynerd.dto.SignupResponse;
 import com.wordynerd.wordynerd.service.UserService;
@@ -29,6 +30,11 @@ public class AuthController {
     @PostMapping("/signup")
     public SignupResponse signup(@RequestBody SignupRequest request) {
         return userService.register(request);
+    }
+
+    @PostMapping("/refresh")
+    public LoginResponse refresh(@RequestBody RefreshRequest request) {
+        return userService.refresh(request.getRefreshToken());
     }
 
     @PostMapping({"/logout", "/logout/"})

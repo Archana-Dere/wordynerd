@@ -4,8 +4,6 @@ package com.wordynerd.wordynerd.entity;
 import java.time.Instant; 
 import jakarta.persistence.*;
 
-import java.lang.annotation.Inherited;
-
 @Entity
 public class RefreshToken {
 
@@ -15,16 +13,16 @@ public class RefreshToken {
 
     private Long userId;
 
-    @Column(unique = true, nullable = false)
-    private String token;
+    @Column(name = "token", unique = true, nullable = false)
+    private String tokenHash;
 
     private Instant expiryDate;
 
     public RefreshToken() {}
 
-    public RefreshToken(Long userId, String token, Instant expiryDate){
+    public RefreshToken(Long userId, String tokenHash, Instant expiryDate){
         this.userId = userId;
-        this.token = token;
+        this.tokenHash = tokenHash;
         this.expiryDate = expiryDate;
     }
     
@@ -41,12 +39,12 @@ public class RefreshToken {
         this.userId = userId;
     }
 
-    public String getToken() {
-        return token;
+    public String getTokenHash() {
+        return tokenHash;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setTokenHash(String tokenHash) {
+        this.tokenHash = tokenHash;
     }
 
     public Instant getExpiryDate() {

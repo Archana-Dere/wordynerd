@@ -12,6 +12,7 @@ import com.wordynerd.wordynerd.dto.LoginRequest;
 import com.wordynerd.wordynerd.dto.LoginResponse;
 import com.wordynerd.wordynerd.entity.User;
 import com.wordynerd.wordynerd.exception.InvalidCredentialsException;
+import com.wordynerd.wordynerd.exception.InvalidRefreshTokenException;
 import com.wordynerd.wordynerd.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
@@ -65,23 +66,45 @@ public class UserService {
 
         // String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());  
         
+        String refreshToken = refreshTokenService.createRefreshToken(user.getId());
         String accessToken = jwtUtil.generateAccessToken(
-        user.getId(),
-        user.getEmail(),
-        user.getRole()
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getTokenVersion()
         );
-
-        //Generate Refresh Token (Saved in DB)
-        RefreshToken refreshToken =
-                refreshTokenService.createRefreshToken(user.getId());
 
         return new LoginResponse(
             user.getId(),
             user.getEmail(),
             user.getRole(),
             accessToken,
-            refreshToken.getToken(),
+            refreshToken,
             "Login successful"
+        );
+    }
+
+    @Transactional
+    public LoginResponse refresh(String rawRefreshToken) {
+        RefreshTokenService.Rotation rotation =
+                refreshTokenService.rotateRefreshToken(rawRefreshToken);
+        User user = userRepository.findById(rotation.userId())
+                .orElseThrow(InvalidRefreshTokenException::new);
+
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getTokenVersion()
+        );
+
+        return new LoginResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                accessToken,
+                rotation.refreshToken(),
+                "Token refreshed"
         );
     }
 
@@ -128,7 +151,9 @@ public class UserService {
     @Transactional
     public void logout(String email){
         User user = userRepository.findByEmail(email)
-        .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setTokenVersion(user.getTokenVersion() + 1);
+        userRepository.save(user);
         refreshTokenService.deleteByUserId(user.getId());
     }
 }
